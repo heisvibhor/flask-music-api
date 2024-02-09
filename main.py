@@ -1,20 +1,21 @@
-from instances import db, app
+from instances import db, app, cache
 import os
 from dotenv import load_dotenv
+from config import config_object
 
 load_dotenv()
 
-
 with app.app_context():
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    app.config.from_mapping(config_object)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-    app.config['IMAGE_FOLDER'] = os.environ.get('IMAGE_FOLDER')
-    app.config['AUDIO_FOLDER'] = os.environ.get('AUDIO_FOLDER')
     db.init_app(app)
+    cache.init_app(app)
+
 app.app_context().push()
 
 from application.login import *
 from application.api import *
+from application.signup import *
 
 
 if __name__ == '__main__':
