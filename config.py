@@ -6,5 +6,6 @@ config_object = {
     "CACHE_REDIS_PORT": 6379,
     "IMAGE_FOLDER":"..//image",
     "AUDIO_FOLDER":"..//audio",
-    "SQLALCHEMY_DATABASE_URI":"sqlite:///proj.sqlite3"
+    "SQLALCHEMY_DATABASE_URI":"sqlite:///proj.sqlite3",
+    "JWT_ACCESS_TOKEN_EXPIRES": 86400,
 }

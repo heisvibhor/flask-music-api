@@ -13,6 +13,7 @@ with app.app_context():
 
 app.app_context().push()
 
+
 from application.login import *
 from application.api import *
 from application.signup import *
