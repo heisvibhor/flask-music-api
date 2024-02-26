@@ -156,7 +156,7 @@ class PlaylistSchema(ma.SQLAlchemySchema):
     user_id = ma.auto_field()
     created_at = ma.auto_field()
     image = ma.auto_field()
-    songs = ma.auto_field()
+    songs = fields.Nested(SongSchema())
     user = fields.Nested(UserSchema(only=("id","image")))
 
 class AlbumSchema(ma.SQLAlchemySchema):
@@ -168,8 +168,8 @@ class AlbumSchema(ma.SQLAlchemySchema):
     creator_id = ma.auto_field()
     created_at = ma.auto_field()
     image = ma.auto_field()
-    songs = fields.Nested(SongSchema(only=("id", "image", "audio", "description")))
-    creator = fields.Nested(CreatorSchema(only=("id","image", "artist")))
+    songs = fields.Nested(SongSchema())
+    creator = fields.Nested(CreatorSchema(only=("id","image","artist")))
 
 class SongPlaylistSchema(ma.SQLAlchemySchema):
     class Meta:
