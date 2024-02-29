@@ -125,7 +125,7 @@ class PlaylistResource(Resource):
         
         query = Playlist.query.filter(Playlist.user_id == get_jwt_identity())
         if request.args.get('title'):
-            query = query.filter(Playlist.title.ilike(f'%{request.args.get('title')}%'))
+            query = query.filter(Playlist.title.ilike(f'%{request.args.get("title")}%'))
 
         res = query.all()
         if not res:

@@ -1,13 +1,14 @@
 from flask_restful import Resource, request, marshal_with, fields
 from flask import jsonify
-from application.models import Song, Playlist, SongLikes, SongPlaylist, Creator, Album, AlbumSong
-from application.models import playlist_schema, song_likes_schema, creator_schema, song_schema
+from application.models import Song, Playlist, SongLikes, CreatorLikes, Creator, Album, AlbumSong
+from application.models import creator_likes_schema, song_schema
 from application.delete_file import delete_file
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_jwt
 import os
-from instances import app, db
+from instances import app, db, cache
 from sqlalchemy import func, case
 import uuid
+from .analytics import creatorStatistics
 
 def delete_song(song_id):
     get_song = Song.query.get_or_404(song_id)
@@ -33,9 +34,9 @@ class SongResource(Resource):
         
         if request.args.get('song_id'):
             songs_query = db.select(Song, 
-                                    func.avg(SongLikes.rating).label('rating'), 
-                                    func.sum(case((SongLikes.like, 1) , else_=0)).label('likes')
-                                    ).join(SongLikes , SongLikes.song_id == Song.id,isouter=True
+                                    (func.sum(CreatorLikes.rating * CreatorLikes.rating_count)/func.sum(CreatorLikes.rating_count)), 
+                                    func.sum(CreatorLikes.likes).label('likes')
+                                    ).join(CreatorLikes , CreatorLikes.song_id == Song.id,isouter=True
                                            ).group_by(Song.id).where(Song.id==request.args.get('song_id'))
             r = db.session.execute(songs_query).fetchone()
             
@@ -45,9 +46,9 @@ class SongResource(Resource):
             
         else:
             songs_query = db.select(Song, 
-                                    func.avg(SongLikes.rating).label('rating'), 
-                                    func.sum(case((SongLikes.like, 1) , else_=0)).label('likes')
-                                    ).join(SongLikes , SongLikes.song_id == Song.id,isouter=True
+                                    (func.sum(CreatorLikes.rating * CreatorLikes.rating_count)/func.sum(CreatorLikes.rating_count)), 
+                                    func.sum(CreatorLikes.likes).label('likes')
+                                    ).join(CreatorLikes , CreatorLikes.song_id == Song.id,isouter=True
                                            ).group_by(Song.id)
 
             if 'title' in request.args:
@@ -140,7 +141,7 @@ class SongResource(Resource):
     def post(self):
         if get_jwt()['user_type'] != 'CREATOR':
             return jsonify({"message": "wrong user"}), 403
-        creator = Creator.query.get_or_404(current_user.id)
+        creator = Creator.query.get_or_404(get_jwt_identity())
         if creator.disabled:
             return jsonify({"message": "user disabled"}), 403
 
@@ -178,8 +179,8 @@ class SongResource(Resource):
         if audio_filename:
             audio.save(os.path.join(app.config['AUDIO_FOLDER'] , audio_filename))
         if image_filename:
-            image.save(os.path.join(app.config['IMAGE_FOLDER'] , image_filename))
-
+            image.save(os.path.join(app.config['IMAGE_FOLDER'] , image_filename)) 
+        cache.delete_memoized(creatorStatistics, get_jwt_identity())
         db.session.add(new_song)
         db.session.commit()
 

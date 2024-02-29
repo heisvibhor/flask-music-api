@@ -2,7 +2,7 @@ from application.delete_file import delete_file
 from flask_restful import Resource, reqparse, request
 from werkzeug.datastructures import FileStorage
 from flask_jwt_extended import jwt_required, get_jwt_identity, current_user, get_jwt
-from signup import getOTP
+from application.signup import getOTP
 from sqlalchemy import and_
 from instances import db, app
 from application.models import User, user_schema, Creator, creator_schema
@@ -43,8 +43,24 @@ class CreatorResource(Resource):
 
     @jwt_required()
     def get(self):
-        user_id = get_jwt_identity()
-        return {"user": user_schema.dump(User.query.get_or_404(user_id))}
+        user_type = get_jwt()['user_type']
+    
+        if user_type == 'CREATOR':
+            creator_id = get_jwt_identity()
+            return {"creator": creator_schema.dump(Creator.query.get_or_404(creator_id))}
+            
+        if user_type == 'ADMIN':
+            creator_query = Creator.query
+
+            if 'artist' in request.args:
+                creator_query = creator_query.filter(Creator.artist.ilike('%'+request.args.get('artist')+'%'))
+
+            res = creator_query.all()
+            if res:
+                return {"creator": creator_schema.dump(res), "message": "success"}
+            else:
+                return {"message": "No match found", "creator": None}
+        return {"message": "unauthorized"}, 403
 
     @jwt_required()
     def put(self):

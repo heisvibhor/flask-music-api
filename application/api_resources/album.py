@@ -5,9 +5,10 @@ from application.models import playlist_schema, song_likes_schema, album_schema,
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_jwt
 import os
 from application.delete_file import delete_file
-from instances import app, db
+from instances import app, db, cache
 from sqlalchemy import func, case
 import uuid
+from .analytics import creatorStatistics
 class AlbumSongResource(Resource):
     @jwt_required()
     def post(self, album_id, song_id):
@@ -72,7 +73,7 @@ class AlbumResource(Resource):
         if image_filename:
             album.image = image_filename
             image.save(os.path.join(app.config['IMAGE_FOLDER'] , image_filename))
-                                    
+        cache.delete_memoized(creatorStatistics, get_jwt_identity())
         db.session.add(album)
         db.session.commit()
 
@@ -126,7 +127,7 @@ class AlbumResource(Resource):
         
         query = Album.query.filter(Album.creator_id == get_jwt_identity())
         if request.args.get('title'):
-            query = query.filter(Album.title.ilike(f'%{request.args.get('title')}%'))
+            query = query.filter(Album.title.ilike(f'%{request.args.get("title")}%'))
         if request.args.get('creator_id'):
             query = query.filter(Album.creator_id == request.args.get('creator_id'))
 

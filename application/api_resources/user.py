@@ -5,7 +5,7 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.datastructures import FileStorage
 from flask import jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from signup import getOTP
+from application.signup import getOTP
 from instances import db, app
 from application.models import User, user_schema
 import os
