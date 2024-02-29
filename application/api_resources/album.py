@@ -49,7 +49,7 @@ def delete_album(album_id):
 
 class AlbumResource(Resource):
     @jwt_required()
-    def post():
+    def post(self):
         image = request.files['image']
         form = request.form
 
@@ -79,7 +79,7 @@ class AlbumResource(Resource):
         return {"message": "Success", "album": album_schema.dumps(album)}
 
     @jwt_required()
-    def put(album_id):
+    def put(self, album_id):
         image = request.files['image']
         album = Album.query.get_or_404(int(album_id))
         if get_jwt_identity() != album.creator_id:

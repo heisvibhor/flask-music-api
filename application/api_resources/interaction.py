@@ -7,7 +7,7 @@ from sqlalchemy import and_
 from instance import db, cache, app
 class SongLikeRateResource(Resource):
     @jwt_required()
-    def get(song_id):
+    def get(self, song_id):
         Song.query.get_or_404(song_id)
         songLike = SongLikes.query.filter(and_(SongLikes.song_id == song_id, 
                                                SongLikes.user_id == get_jwt_identity()))
@@ -19,7 +19,7 @@ class SongLikeRateResource(Resource):
         return {"songlike": song_likes_schema.dump(songLike)}
         
     @jwt_required()
-    def put(song_id):
+    def put(self, song_id):
         Song.query.get_or_404(song_id)
         songLike = SongLikes.query.filter(and_(SongLikes.song_id == song_id, 
                                                SongLikes.user_id == get_jwt_identity()))
@@ -34,7 +34,7 @@ class SongLikeRateResource(Resource):
             
         return {"songlike": song_likes_schema.dump(songLike)}
     @jwt_required()
-    def post(song_id):
+    def post(self, song_id):
         Song.query.get_or_404(song_id)
         songLike = SongLikes.query.filter(and_(SongLikes.song_id == song_id, 
                                                SongLikes.user_id == get_jwt_identity()))

@@ -48,7 +48,7 @@ def delete_playlist(playlist_id):
 
 class PlaylistResource(Resource):
     @jwt_required()
-    def post():
+    def post(self):
         image = request.files['image']
         form = request.form
 
@@ -78,7 +78,7 @@ class PlaylistResource(Resource):
         return {"message": "Success", "playlist": playlist_schema.dumps(playlist)}
 
     @jwt_required()
-    def put(playlist_id):
+    def put(self, playlist_id):
         image = request.files['image']
         playlist = Playlist.query.get_or_404(int(playlist_id))
         if get_jwt_identity() != playlist.user_id:

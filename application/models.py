@@ -105,10 +105,8 @@ class UserSchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     email = ma.auto_field()
     user_type = ma.auto_field()
-    playlists = ma.auto_field()
     language = ma.auto_field()
     image = ma.auto_field()
-    likes = ma.auto_field()
 
 class CreatorSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -119,6 +117,7 @@ class CreatorSchema(ma.SQLAlchemySchema):
     disabled = ma.auto_field()
     policy_violate = ma.auto_field()
     image = ma.auto_field()
+
 
 class SongLikesSchema(ma.SQLAlchemySchema):
     class Meta:
