@@ -16,7 +16,7 @@ def user_lookup_callback(_jwt_header, jwt_data):
 login_parser = reqparse.RequestParser()
 login_parser.add_argument('email', required=True)
 login_parser.add_argument('password', required=True)
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login_post():
     args = login_parser.parse_args()
     email = args.get('email')

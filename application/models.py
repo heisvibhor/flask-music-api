@@ -8,6 +8,7 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
+    name: Mapped[str] = mapped_column(nullable=False)
     user_type: Mapped[str] = mapped_column(db.CheckConstraint('user_type in ("USER", "CREATOR", "ADMIN")'),
                                            default="USER")
     playlists: Mapped[list["Playlist"]] = relationship(
@@ -131,11 +132,11 @@ class AlbumSong(db.Model):
 
 
 class Genre(db.Model):
-    name: Mapped[str] = db.Column(db.String, nullable=False, primary_key=True)
+    name: Mapped[str] = mapped_column(primary_key=True)
 
 
 class Language(db.Model):
-    name: Mapped[str] = db.Column(db.String, nullable=False, primary_key=True)
+    name: Mapped[str] = mapped_column(primary_key=True)
 
 
 class UserSchema(ma.SQLAlchemySchema):
@@ -146,6 +147,7 @@ class UserSchema(ma.SQLAlchemySchema):
     user_type = ma.auto_field()
     language = ma.auto_field()
     image = ma.auto_field()
+    name = ma.auto_field()
 
 
 class CreatorSchema(ma.SQLAlchemySchema):
@@ -252,3 +254,14 @@ album_schema = AlbumSchema()
 song_playlist_schema = SongPlaylistSchema()
 genre_schema = GenreSchema()
 language_schema = LanguageSchema()
+
+many_user_schema = UserSchema(many=True)
+many_creator_schema = CreatorSchema(many=True)
+many_creator_likes_schema = CreatorLikesSchema(many=True)
+many_song_likes_schema = SongLikesSchema(many=True)
+many_song_schema = SongSchema(many=True)
+many_playlist_schema = PlaylistSchema(many=True)
+many_album_schema = AlbumSchema(many=True)
+many_song_playlist_schema = SongPlaylistSchema(many=True)
+many_genre_schema = GenreSchema(many=True)
+many_language_schema = LanguageSchema(many=True)

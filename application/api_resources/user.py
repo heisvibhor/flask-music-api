@@ -13,7 +13,7 @@ import uuid
 
 class UserResource(Resource):
     signup_parser = reqparse.RequestParser()
-    signup_parser.add_argument('username', type=str, required=True, location=["form"])
+    signup_parser.add_argument('otp', type=int, required=True, location=["form"])
     signup_parser.add_argument('password', required=True, location=["form"])
     signup_parser.add_argument('email', required=True, location=["form"])
     signup_parser.add_argument('name', required=True, location=["form"])
@@ -26,7 +26,9 @@ class UserResource(Resource):
         email = args.get('email')
         name = args.get('name')
         language = args.get('language')
-        image = args.get('image')   
+        image = args.get('image')  
+        if args.get('otp') != getOTP(email):
+            return {"message": "Incorrect OTP"}, 406
 
         if not image or image.filename == '':
             image_filename = None
@@ -46,17 +48,18 @@ class UserResource(Resource):
         if user:
             return jsonify({"message": "email already exists"}), 406
         else:
-            user = User(username=email, password=generate_password_hash(
+            user = User(password=generate_password_hash(
                 password), email=email, name=name, language=language, image=image_filename)
             db.session.add(user)
             db.session.commit()
-            return jsonify({
+        
+            return {
                 'token': create_access_token(identity=user.id, additional_claims={"user_type": user.user_type}),
                 'user_id': user.id,
                 'user_type': user.user_type,
                 'email': user.email,
                 'message': 'success'
-            }), 200
+            }, 200
 
     @jwt_required()   
     def get(self):
@@ -88,6 +91,8 @@ class UserResource(Resource):
 
         if language not in empty:
             user.language = language
+        if name not in empty:
+            user.name = language
 
         db.session.add(user)
         db.session.commit()

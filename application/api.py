@@ -9,6 +9,7 @@ from .api_resources.analytics import AnalyticsResource
 from .api_resources.album import AlbumResource, AlbumSongResource
 from .api_resources.creator import CreatorResource
 from .api_resources.user import UserResource
+from .api_resources.lang_genre import LanguageResource, GenreResource
 
 api = Api(app)
 api.add_resource(PlaylistSongResource, '/api/playlist/<int:playlist_id>/<int:song_id>')
@@ -22,4 +23,6 @@ api.add_resource(AnalyticsResource, '/api/analytics')
 api.add_resource(AlbumSongResource, '/api/album/<int:album>/<int:song_id>')
 api.add_resource(CreatorResource, '/api/creator')
 api.add_resource(UserResource, '/api/user')
+api.add_resource(LanguageResource, '/api/language')
+api.add_resource(GenreResource, '/api/genre')
 

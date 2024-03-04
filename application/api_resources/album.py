@@ -1,7 +1,7 @@
 from flask_restful import Resource, request, marshal_with, fields
 from flask import jsonify
 from application.models import Song, Playlist, SongLikes, SongPlaylist, Creator, Album, AlbumSong
-from application.models import playlist_schema, song_likes_schema, album_schema, song_schema
+from application.models import album_schema, song_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_jwt
 import os
 from application.delete_file import delete_file

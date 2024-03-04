@@ -13,7 +13,7 @@ from flask_jwt_extended import create_access_token
 forgot = reqparse.RequestParser()
 forgot.add_argument('email', required=True, location=["form"])
 
-@app.route('/forgot_password', methods=['POST'])
+@app.route('/api/forgot_password', methods=['POST'])
 def fgtpassword():
     email = request.form.get("email") 
     user = User.query.where(User.email == email).first()
@@ -34,7 +34,7 @@ def fgtpassword():
     return jsonify({"message": "OTP send"}), 200
 
     
-@app.route('/change_password', methods=["POST"])
+@app.route('/api/change_password', methods=["POST"])
 def changepswd():
     email = request.form.get("email") 
     password = request.form.get("password") 
@@ -56,7 +56,7 @@ def changepswd():
     return {"message": "change password success"}, 400
     
 
-@cache.memoize()
+@cache.memoize(300)
 def getOTP(email_id):
     return random.randint(100000, 999999)
 
@@ -64,21 +64,21 @@ def getOTP(email_id):
 # def handle_bad_request(e):
 #     return jsonify({"message": "bad request"}), 400
 
-@app.route('/get_otp', methods=['POST'])
+@app.route('/api/get_otp', methods=['POST'])
 def get_mail_otp():
     email = request.form.get("email")
     user = User.query.where(User.email == email).first()
     if user:
-        return jsonify({"message": "email already exists"}), 406
+        return jsonify({"message": "Email already exists try login"}), 406
     
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
     if re.fullmatch(regex, email):
         msg = EmailMessage()
-        msg.set_content("message")
-        msg['Subject'] = 'Verify OTP for vibhorify'
+        msg.set_content(f"Use {getOTP(email)} to verify for Vibhorify")
+        msg['Subject'] = 'Vibhorify ' 
         msg['To'] = email
-        # send_mail(msg)
+        send_mail(msg)
     else:
-        return jsonify({"message": "invalid email address"}), 406
+        return jsonify({"message": "Invalid email address"}), 406
 
     return jsonify({"message": "success"}), 200

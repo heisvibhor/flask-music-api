@@ -1,19 +1,16 @@
 from flask_restful import Resource, request
-from application.models import Genre, Language, language_schema, genre_schema
+from application.models import Genre, Language, many_language_schema, many_genre_schema
 from flask_jwt_extended import jwt_required, get_jwt
 from instances import db
 
 
 class GenreResource(Resource):
-    @jwt_required()
-    def get():
-        if get_jwt()['user_type'] != 'ADMIN':
-            return {"message": "unauthorized"}, 401
+    def get(self):
         genres = Genre.query.all()
-        return {"genres": genre_schema.dump(genres)}
+        return {"genres": many_genre_schema.dump(genres)}
 
     @jwt_required()
-    def post():
+    def post(self):
         if get_jwt()['user_type'] != 'ADMIN':
             return {"message": "unauthorized"}, 401
 
@@ -31,15 +28,12 @@ class GenreResource(Resource):
 
 
 class LanguageResource(Resource):
-    @jwt_required()
-    def get():
-        if get_jwt()['user_type'] != 'ADMIN':
-            return {"message": "unauthorized"}, 401
+    def get(self):
         languages = Language.query.all()
-        return {"languages": language_schema.dump(languages)}
+        return {"languages": many_language_schema.dump(languages)}
 
     @jwt_required()
-    def post():
+    def post(self):
         if get_jwt()['user_type'] != 'ADMIN':
             return {"message": "unauthorized"}, 401
 
