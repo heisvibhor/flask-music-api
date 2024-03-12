@@ -4,6 +4,7 @@ from datetime import datetime, date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from marshmallow import fields
 
+
 class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
@@ -161,6 +162,7 @@ class CreatorSchema(ma.SQLAlchemySchema):
     image = ma.auto_field()
     user = fields.Nested(UserSchema(only=("id", "email", "image")))
 
+
 class CreatorLikesSchema(ma.SQLAlchemySchema):
     class Meta:
         model = CreatorLikes
@@ -172,6 +174,7 @@ class CreatorLikesSchema(ma.SQLAlchemySchema):
     unlikes = ma.auto_field()
     rating_count = ma.auto_field()
     rating = ma.auto_field()
+
 
 class SongLikesSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -239,10 +242,12 @@ class GenreSchema(ma.SQLAlchemySchema):
         model = Genre
     name = ma.auto_field()
 
+
 class LanguageSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Language
     name = ma.auto_field()
+
 
 user_schema = UserSchema()
 creator_schema = CreatorSchema()
