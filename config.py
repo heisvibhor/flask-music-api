@@ -7,7 +7,7 @@ config_object = {
     "IMAGE_FOLDER":"..//image",
     "AUDIO_FOLDER":"..//audio",
     "SQLALCHEMY_DATABASE_URI":"sqlite:///proj.sqlite3",
-    "JWT_ACCESS_TOKEN_EXPIRES": 86400,
+    "JWT_ACCESS_TOKEN_EXPIRES": 84200,
     "CELERY": {
         "broker_url":"redis://localhost",
         "result_backend":"redis://localhost",

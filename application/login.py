@@ -6,7 +6,8 @@ from .models import User
 from instances import db, cache, jwt
 from datetime import datetime, timezone
 from functools import wraps
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt, verify_jwt_in_request
 
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
@@ -32,7 +33,7 @@ def login_post():
         if check_password_hash( user.password, password):
             
             return jsonify({
-                'token': create_access_token(identity=user.id, additional_claims={"user_type": user.user_type}),
+                'token': create_access_token(identity=user.id, additional_claims={"user_type": user.user_type}, fresh=True),
                 'user_id': user.id,
                 'user_type': user.user_type,
                 'email': user.email,
@@ -42,6 +43,12 @@ def login_post():
             return jsonify({"message":"invalid password"}), 401
     else:
         return jsonify({"message":"invalid email"}), 406
+
+
+@jwt.expired_token_loader
+def errToken(a, b):
+    # print(a, b) just the parsed token content
+    return {'message': 'Token has expired'}, 401
 
 @cache.memoize()
 def getUser(user_id):
