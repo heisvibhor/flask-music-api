@@ -30,6 +30,7 @@ celery_app = celery_init_app(app)
 from application.login import *
 from application.api import *
 from application.signup import *
+from application.contollers import *
 
 
 if __name__ == '__main__':
