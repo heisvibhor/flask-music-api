@@ -1,6 +1,6 @@
 from flask import current_app as app, send_file
 import os
-@app.route("/api/song/<string:filename>")
+@app.route("/api/audio/<string:filename>")
 def return_audio(filename):
     name = os.path.join(app.config['AUDIO_FOLDER'] , filename)
     if os.path.exists(name):

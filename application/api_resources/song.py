@@ -159,7 +159,7 @@ class SongResource(Resource):
         
         empty = ['', None, ' ']
 
-        new_song = Song(audio = audio_filename, image = image_filename)
+        new_song = Song(audio = audio_filename, image = image_filename, creator_id=get_jwt_identity())
         if request.form.get('title') in empty :
             return jsonify({"message": "invalid input"}), 406
         new_song.title = request.form.get('title')
