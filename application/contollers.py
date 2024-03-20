@@ -6,7 +6,7 @@ def return_audio(filename):
     if os.path.exists(name):
         return send_file(name)
     else:
-        return None, 404
+        return {"message": "not found"}, 404
 
 @app.route("/api/image/<string:filename>")
 def return_image(filename):
