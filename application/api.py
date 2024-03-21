@@ -3,7 +3,7 @@ from flask_restful import current_app as app
 from .api_resources.playlist import PlaylistResource, PlaylistSongResource
 from .api_resources.interaction import SongLikeRateResource
 from .api_resources.song import SongResource
-from .api_resources.interaction import SongLikeRateResource
+from .api_resources.interaction import *
 from .api_resources.home_page import HomePageResource
 from .api_resources.analytics import AnalyticsResource
 from .api_resources.album import AlbumResource, AlbumSongResource

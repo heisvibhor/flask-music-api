@@ -27,7 +27,6 @@ def delete_song(song_id):
 
 class SongResource(Resource):
     @jwt_required()
-    # @marshal_with(songQueryFields)
     def get(self):
         # claims = get_jwt()
         # print(current_user.user_type, claims, request.args, get_jwt_identity())
@@ -52,22 +51,23 @@ class SongResource(Resource):
                                     func.sum(CreatorLikes.likes).label('likes')
                                     ).join(CreatorLikes, CreatorLikes.song_id == Song.id, isouter=True
                                            ).group_by(Song.id)
-
-            if 'title' in request.args:
+            # print(request.args)
+            empty = ['', None, 'undefined', 'null']
+            if 'title' in request.args and request.args['title'] not in empty:
                 songs_query = songs_query.where(
                     Song.title.ilike('%'+request.args.get('title')+'%'))
-            if 'language' in request.args:
+            if 'language' in request.args and request.args['language'] not in empty:
                 songs_query = songs_query.where(
                     Song.language == request.args.get('language'))
-            if 'genre' in request.args:
+            if 'genre' in request.args and request.args['genre'] not in empty:
                 songs_query = songs_query.where(
                     Song.genre == request.args.get('genre'))
-            if 'creator_id' in request.args:
+            if 'creator_id' in request.args and request.args['creator_id'] not in empty:
                 songs_query = songs_query.where(
                     Song.creator_id == request.args.get('creator_id'))
 
             res = db.session.execute(songs_query).fetchall()
-            print(res)
+            # print(res)
             if not res:
                 return {"message": "Song not found"}, 404
             an = [{'song': song_schema.dump(

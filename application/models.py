@@ -213,7 +213,7 @@ class PlaylistSchema(ma.SQLAlchemySchema):
     user_id = ma.auto_field()
     created_at = ma.auto_field()
     image = ma.auto_field()
-    songs = fields.Nested(SongSchema())
+    songs = fields.Nested(SongSchema(many = True))
     user = fields.Nested(UserSchema(only=("id", "image")))
 
 

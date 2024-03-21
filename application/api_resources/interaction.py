@@ -80,7 +80,7 @@ class SongLikeRateResource(Resource):
             
         return {"songlike": song_likes_schema.dump(songLike)}
     
-@cache.memoize()
+@cache.memoize(60)
 def add_view(song_id, user_id):
     song = Song.query.get_or_404(song_id)
     creator_like = CreatorLikes.query.filter(and_(CreatorLikes.song_id == song_id, 
@@ -96,7 +96,7 @@ def add_view(song_id, user_id):
     db.session.commit()
     return {"message": "Success"}
 
-@app.route("/api/view/<int:song_id>")
+@app.route("/api/view/<int:song_id>", methods=['GET'])
 @jwt_required()
 def add_views(song_id):
     return add_view(song_id, get_jwt_identity())

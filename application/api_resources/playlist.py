@@ -16,7 +16,7 @@ class PlaylistSongResource(Resource):
 
         songplaylist = SongPlaylist.query.filter(SongPlaylist.playlist_id == playlist_id, SongPlaylist.song_id == song_id).first()
         if songplaylist or playlist.user_id != get_jwt_identity():
-            return {"message": "Invalid user or song"}, 406
+            return {"message": "Song already exists or Invalid user"}, 406
 
         playlist.songs.append(song)
         db.session.add(playlist)
@@ -31,7 +31,7 @@ class PlaylistSongResource(Resource):
         if songplaylist and playlist.user_id == get_jwt_identity():
             db.session.delete(songplaylist)
             db.session.commit()
-            return {"message": "Success"}, 202
+            return {"message": "Success"}, 200
         else:
             return {"message": "Invalid"}, 400
         
@@ -116,18 +116,10 @@ class PlaylistResource(Resource):
         return {"message": "Success"}
 
     @jwt_required()
-    def get(self):
-        if request.args.get('playlist_id'):
-            playlist = Playlist.query.get_or_404(int(request.args.get('playlist_id')))
-            if get_jwt_identity()!= playlist.user_id :
-                return jsonify({"message": "invalid user"}), 403
-            return {"playlist": playlist_schema.dump(playlist)}
+    def get(self, playlist_id):
+        playlist = Playlist.query.get_or_404(playlist_id)
+        if get_jwt_identity()!= playlist.user_id :
+            return jsonify({"message": "invalid user"}), 403
+        return {"playlist": playlist_schema.dump(playlist)}
         
-        query = Playlist.query.filter(Playlist.user_id == get_jwt_identity())
-        if request.args.get('title'):
-            query = query.filter(Playlist.title.ilike(f'%{request.args.get("title")}%'))
-
-        res = query.all()
-        if not res:
-            return jsonify({"message": "not found"}), 404
-        return {"playlist": playlist_schema.dump(res)}
+    
