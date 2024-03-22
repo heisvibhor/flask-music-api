@@ -67,7 +67,7 @@ class SongResource(Resource):
                     Song.creator_id == request.args.get('creator_id'))
 
             res = db.session.execute(songs_query).fetchall()
-            # print(res)
+            print(res)
             if not res:
                 return {"message": "Song not found"}, 404
             an = [{'song': song_schema.dump(

@@ -17,9 +17,9 @@ class HomePageResource(Resource):
         )).limit(10)
 
         data = {}
-        query = base_query.join(SongLikes , SongLikes.song_id == Song.id,isouter=True).group_by(Song.id).order_by(func.avg(SongLikes.rating).desc())
+        query = base_query.join(SongLikes , SongLikes.song_id == Song.id,isouter=True).group_by(Song.id).order_by(func.avg(CreatorLikes.rating * CreatorLikes.rating_count).desc())
         data['top_rated'] = [{'song': song_schema.dump(r[0]), 'rating':r[1], 'likes': r[2]} for r in db.session.execute(query).all()]
-
+        # print(data['top_rated'])
         query1 = base_query.order_by(Song.views.desc())
         data['top_views'] = [{'song': song_schema.dump(r[0]), 'rating':r[1], 'likes': r[2]} for r in db.session.execute(query1).all()]
 
