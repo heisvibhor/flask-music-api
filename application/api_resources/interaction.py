@@ -40,7 +40,10 @@ class SongLikeRateResource(Resource):
                 song_id=song_id)
 
         if request.form.get('like') == "true" and not songLike.like:
-            creator_like.likes += 1
+            if creator_like.rating_count:
+                creator_like.rating_count += 1
+            else:
+                creator_like.rating_count = 1
         songLike.like = True if request.form.get('like') == "true" else False
 
         if request.form.get('rating') and int(request.form.get('rating')) <= 5 and int(request.form.get('rating')) > 0:

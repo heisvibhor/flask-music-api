@@ -1,12 +1,10 @@
-from flask_restful import Resource, request, marshal_with, fields
-from flask import jsonify
-from application.models import Song, Playlist, SongLikes, SongPlaylist, Creator, Album, AlbumSong
+from flask_restful import Resource, request
+from application.models import Song, Album, AlbumSong
 from application.models import album_schema, song_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_jwt
 import os
 from application.delete_file import delete_file
 from instances import app, db, cache
-from sqlalchemy import func, case
 import uuid
 from .analytics import creatorStatistics
 class AlbumSongResource(Resource):
@@ -16,7 +14,7 @@ class AlbumSongResource(Resource):
         song = Song.query.get_or_404(song_id)
 
         albumSong = AlbumSong.query.filter(AlbumSong.album_id == album_id, AlbumSong.song_id == song_id).first()
-        if albumSong or album.user_id != get_jwt_identity():
+        if albumSong or album.creator_id != get_jwt_identity():
             return {"message": "Invalid user or song"}, 406
 
         album.songs.append(song)
@@ -29,7 +27,7 @@ class AlbumSongResource(Resource):
     def delete(self, album_id, song_id):
         album = Album.query.get_or_404(album_id)
         albumSong = AlbumSong.query.filter(AlbumSong.album_id == album_id, AlbumSong.song_id == song_id).first()
-        if albumSong and album.user_id == get_jwt_identity():
+        if albumSong and album.creator_id == get_jwt_identity():
             db.session.delete(albumSong)
             db.session.commit()
             return {"message": "Success"}, 202
@@ -51,10 +49,11 @@ def delete_album(album_id):
 class AlbumResource(Resource):
     @jwt_required()
     def post(self):
-        image = request.files['image']
+        # print(request.form)
+        image = request.files.get('image')
         form = request.form
 
-        if image.filename=='':
+        if not image or image.filename=='':
             image_filename = None
         else:
             image_filename = 'a' + str(uuid.uuid4()) +'.' + image.filename.split('.')[-1]
@@ -77,11 +76,11 @@ class AlbumResource(Resource):
         db.session.add(album)
         db.session.commit()
 
-        return {"message": "Success", "album": album_schema.dumps(album)}
+        return {"album": album_schema.dump(album), "message": "Success"}
 
     @jwt_required()
     def put(self, album_id):
-        image = request.files['image']
+        image = request.files.get('image')
         album = Album.query.get_or_404(int(album_id))
         if get_jwt_identity() != album.creator_id:
             return {"message": "Invalid user"}, 406
@@ -90,7 +89,7 @@ class AlbumResource(Resource):
         if request.form.get('title') not in empty :
             album.title = request.form['title'] 
 
-        if image.filename=='':
+        if not image or image.filename=='':
             image_filename =  None
         else:
             if album.image:
@@ -107,13 +106,14 @@ class AlbumResource(Resource):
         db.session.add(album)
         db.session.commit()
 
-        return {"message": "Success", "album": album_schema.dumps(album)}
+        return {"message": "Success", "album": album_schema.dump(album)}
     
     @jwt_required()
     def delete(self, album_id):
         album = Album.query.get_or_404(album_id)
-        if get_jwt_identity()!= album.creator_id or get_jwt()['user_type'] != 'ADMIN':
-            return jsonify({"message": "wrong user"}), 403
+        # print(album_schema.dump(album),get_jwt_identity())
+        if get_jwt_identity()!= album.creator_id and get_jwt()['user_type'] != 'ADMIN':
+            return {"message": "wrong user"}, 403
         delete_album(album_id)
         return {"message": "Success"}
 
@@ -122,7 +122,7 @@ class AlbumResource(Resource):
         if request.args.get('album_id'):
             album = Album.query.get_or_404(int(request.args.get('album_id')))
             if get_jwt_identity()!= album.creator_id :
-                return jsonify({"message": "invalid user"}), 403
+                return {"message": "invalid user"}, 403
             return {"album": album_schema.dump(album)}
         
         query = Album.query.filter(Album.creator_id == get_jwt_identity())
@@ -133,5 +133,5 @@ class AlbumResource(Resource):
 
         res = query.all()
         if not res:
-            return jsonify({"message": "not found"}), 404
+            return {"message": "not found"}, 404
         return {"album": album_schema.dump(res)}

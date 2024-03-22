@@ -49,10 +49,10 @@ def delete_playlist(playlist_id):
 class PlaylistResource(Resource):
     @jwt_required()
     def post(self):
-        image = request.files['image']
+        image = request.files.get('image')
         form = request.form
 
-        if image.filename=='':
+        if not image or image.filename=='':
             image_filename = None
         else:
             image_filename = 'a' + str(uuid.uuid4()) +'.' + image.filename.split('.')[-1]
@@ -75,11 +75,11 @@ class PlaylistResource(Resource):
         db.session.add(playlist)
         db.session.commit()
 
-        return {"message": "Success", "playlist": playlist_schema.dumps(playlist)}
+        return {"message": "Success", "playlist": playlist_schema.dump(playlist)}
 
     @jwt_required()
     def put(self, playlist_id):
-        image = request.files['image']
+        image = request.files.get('image')
         playlist = Playlist.query.get_or_404(int(playlist_id))
         if get_jwt_identity() != playlist.user_id:
             return {"message": "Invalid user"}, 406
@@ -88,7 +88,7 @@ class PlaylistResource(Resource):
         if request.form.get('title') not in empty :
             playlist.title = request.form['title'] 
 
-        if image.filename=='':
+        if not image or image.filename=='':
             image_filename =  None
         else:
             if playlist.image:
@@ -105,7 +105,7 @@ class PlaylistResource(Resource):
         db.session.add(playlist)
         db.session.commit()
 
-        return {"message": "Success", "playlist": playlist_schema.dumps(playlist)}
+        return {"playlist": playlist_schema.dump(playlist), "message": "Success"}
     
     @jwt_required()
     def delete(self, playlist_id):
