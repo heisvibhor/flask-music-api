@@ -78,12 +78,11 @@ class SongResource(Resource):
     def put(self, song_id):
         get_song = Song.query.get_or_404(song_id)
         creator = Creator.query.get_or_404(get_jwt_identity())
-
         if get_jwt()['user_type'] != 'CREATOR' or creator.id != get_song.creator_id:
             return {"message": "wrong user"}, 403
-
-        if not creator and creator.disabled:
-            return {"message": "user disabled"}, 403
+        
+        if not creator or creator.disabled:
+            return {"message": "creator disabled"}, 403
 
         audio = request.files.get('audio')
         image = request.files.get('image')
@@ -143,8 +142,8 @@ class SongResource(Resource):
         if get_jwt()['user_type'] != 'ADMIN' and not (get_jwt()['user_type'] == 'CREATOR' and get_jwt_identity() == song.creator_id):
             return {"message": "wrong user"}, 403
         creator = Creator.query.get_or_404(current_user.id)
-        if creator.disabled:
-            return {"message": "user disabled"}, 403
+        if not creator or creator.disabled:
+            return {"message": "creator disabled"}, 403
 
         delete_song(song_id)
 
@@ -155,8 +154,8 @@ class SongResource(Resource):
         if get_jwt()['user_type'] != 'CREATOR':
             return {"message": "wrong user"}, 403
         creator = Creator.query.get_or_404(get_jwt_identity())
-        if creator.disabled:
-            return {"message": "user disabled"}, 403
+        if not creator or creator.disabled:
+            return {"message": "creator disabled"}, 403
 
         audio = request.files.get('audio')
         image = request.files.get('image')

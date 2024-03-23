@@ -73,11 +73,11 @@ class UserResource(Resource):
 
         name = request.form.get('name')
         language = request.form.get('language')
-        image = request.files['image']
+        image = request.files.get('image')
 
         empty = [None, '', ' ']
 
-        if image.filename=='':
+        if not image or image.filename=='':
             image_filename =  None
         else:
             if user.image:
@@ -92,9 +92,9 @@ class UserResource(Resource):
         if language not in empty:
             user.language = language
         if name not in empty:
-            user.name = language
+            user.name = name
 
         db.session.add(user)
         db.session.commit()
 
-        return {"message": "success"}
+        return {"message": "success", "user": user_schema.dump(user)}

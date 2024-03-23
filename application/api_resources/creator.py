@@ -17,7 +17,7 @@ class CreatorResource(Resource):
         image = request.files.get('image')
         artist_name = request.form.get('artist')
         id = get_jwt_identity()
-        user = current_user()
+        user = current_user
         creator = Creator.query.filter(Creator.id == id).first()
         artist = Creator.query.filter(Creator.artist == artist_name).first()
         if creator:
@@ -80,6 +80,9 @@ class CreatorResource(Resource):
         if get_jwt()['user_type'] == 'CREATOR':
             creator = Creator.query.get_or_404(get_jwt_identity())
 
+            if not creator and creator.disabled:
+                return {"message": "creator disabled"}, 403
+
             image = request.files.get('image')
             artist_name = request.form.get('artist')
 
@@ -88,14 +91,13 @@ class CreatorResource(Resource):
 
             if crt:
                 return {"message": "artist name already exists try using different name"}
-            image = request.files['image']
 
             empty = [None, '', ' ']
 
             if artist_name not in empty:
                 creator.artist = artist_name
 
-            if image.filename == '':
+            if not image or image.filename == '':
                 image_filename = None
             else:
                 if creator.image:
@@ -113,5 +115,6 @@ class CreatorResource(Resource):
 
             db.session.add(creator)
             db.session.commit()
+            return {'message': 'Success', 'creator': creator_schema.dump(creator)}
 
         return {"message": "unauthorized"}, 403

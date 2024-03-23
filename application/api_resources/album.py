@@ -1,5 +1,5 @@
 from flask_restful import Resource, request
-from application.models import Song, Album, AlbumSong
+from application.models import Song, Album, AlbumSong, Creator
 from application.models import album_schema, song_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_jwt
 import os
@@ -52,7 +52,9 @@ class AlbumResource(Resource):
         # print(request.form)
         image = request.files.get('image')
         form = request.form
-
+        creator = Creator.query.get_or_404(current_user.id)
+        if not creator or creator.disabled:
+            return {"message": "creator disabled"}, 403
         if not image or image.filename=='':
             image_filename = None
         else:
@@ -86,6 +88,10 @@ class AlbumResource(Resource):
             return {"message": "Invalid user"}, 406
         empty = ['', None, ' ']
 
+        creator = Creator.query.get_or_404(current_user.id)
+        if not creator or creator.disabled:
+            return {"message": "creator disabled"}, 403
+
         if request.form.get('title') not in empty :
             album.title = request.form['title'] 
 
@@ -114,6 +120,9 @@ class AlbumResource(Resource):
         # print(album_schema.dump(album),get_jwt_identity())
         if get_jwt_identity()!= album.creator_id and get_jwt()['user_type'] != 'ADMIN':
             return {"message": "wrong user"}, 403
+        creator = Creator.query.get_or_404(current_user.id)
+        if not creator or creator.disabled:
+            return {"message": "creator disabled"}, 403
         delete_album(album_id)
         return {"message": "Success"}
 
