@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, current_user, get
 from application.signup import getOTP
 from sqlalchemy import and_
 from instances import db, app
-from application.models import User, user_schema, Creator, creator_schema
+from application.models import many_creator_schema, Creator, creator_schema
 import os
 import uuid
 
@@ -52,12 +52,12 @@ class CreatorResource(Resource):
         if user_type == 'ADMIN':
             creator_query = Creator.query
 
-            if 'artist' in request.args:
+            if 'artist' in request.args and request.args.get('artist') not in ['', 'null', 'Undefined', None, ' ']:
                 creator_query = creator_query.filter(Creator.artist.ilike('%'+request.args.get('artist')+'%'))
 
             res = creator_query.all()
             if res:
-                return {"creator": creator_schema.dump(res), "message": "success"}
+                return {"creators": many_creator_schema.dump(res), "message": "success"}
             else:
                 return {"message": "No match found", "creator": None}
         return {"message": "unauthorized"}, 403
