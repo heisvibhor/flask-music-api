@@ -1,8 +1,8 @@
 from flask_restful import Resource
-from application.models import Song, Playlist, SongLikes, SongPlaylist, Creator, Album, AlbumSong, Genre
-from application.models import playlist_schema, song_schema, CreatorLikes, album_schema
-from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_jwt
-from sqlalchemy import and_, func, distinct, case
+from application.models import Song, Playlist, SongLikes, SongPlaylist, Album, AlbumSong, Genre
+from application.models import Language, many_song_schema, many_album_schema
+from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
+from sqlalchemy import func, distinct
 from instances import db, cache, app
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -17,32 +17,61 @@ def get_plot(df):
     df['Color'] = np.random.choice(list(mcolors.XKCD_COLORS), df.shape[0])
 
     plt.bar('Genre', 'Rating', color='Color', data=df)
-    plt.title('Genre wise ratings')
-    plt.xlabel('Genre')
-    plt.ylabel('Rating')
-    plt.xticks(rotation=90)
+    plt.title('Genre wise ratings', fontdict={'size': 22})
+    plt.xlabel('Genre', fontdict={'size': 16})
+    plt.ylabel('Rating', fontdict={'size': 16})
+    plt.xticks(rotation=80, fontsize=12)
     plt.subplots_adjust(bottom=0.28)
     plt.savefig(os.path.join(app.config['IMAGE_FOLDER'], 'plot.jpg'))
     plt.close()
 
     plt.bar('Genre', 'Views', color='Color', data=df)
-    plt.title('Genre wise views')
-    plt.xlabel('Genre')
-    plt.ylabel('Views')
-    plt.xticks(rotation=90)
+    plt.title('Genre wise views', fontdict={'size': 22})
+    plt.xlabel('Genre', fontdict={'size': 16})
+    plt.ylabel('Views', fontdict={'size': 16})
+    plt.xticks(rotation=80, fontsize=12)
     plt.subplots_adjust(bottom=0.28)
     plt.savefig(os.path.join(app.config['IMAGE_FOLDER'], 'plot1.jpg'))
     plt.close()
 
     plt.bar('Genre', 'Count', color='Color', data=df)
-    plt.title('Genre wise count of songs uploaded')
-    plt.xlabel('Genre')
-    plt.ylabel('Count')
-    plt.xticks(rotation=90)
+    plt.title('Genre wise count of songs uploaded', fontdict={'size': 22})
+    plt.xlabel('Genre', fontdict={'size': 16})
+    plt.ylabel('Count', fontdict={'size': 16})
+    plt.xticks(rotation=80, fontsize=12)
     plt.subplots_adjust(bottom=0.28)
     plt.savefig(os.path.join(app.config['IMAGE_FOLDER'], 'plot2.jpg'))
     plt.close()
 
+def get_plot1(df):
+    df['Color'] = np.random.choice(list(mcolors.XKCD_COLORS), df.shape[0])
+
+    plt.bar('Language', 'Rating', color='Color', data=df)
+    plt.title('Language wise ratings', fontdict={'size': 22})
+    plt.xlabel('Language', fontdict={'size': 16})
+    plt.ylabel('Rating', fontdict={'size': 16})
+    plt.xticks(rotation=80, fontsize=12)
+    plt.subplots_adjust(bottom=0.28)
+    plt.savefig(os.path.join(app.config['IMAGE_FOLDER'], 'plot3.jpg'))
+    plt.close()
+
+    plt.bar('Language', 'Views', color='Color', data=df)
+    plt.title('Language wise views' ,fontdict={'size': 22})
+    plt.xlabel('Language', fontdict={'size': 16})
+    plt.ylabel('Views', fontdict={'size': 16})
+    plt.xticks(rotation=80, fontsize=12)
+    plt.subplots_adjust(bottom=0.28)
+    plt.savefig(os.path.join(app.config['IMAGE_FOLDER'], 'plot4.jpg'))
+    plt.close()
+
+    plt.bar('Language', 'Count', color='Color', data=df)
+    plt.title('Language wise count of songs uploaded', fontdict={'size': 16})
+    plt.xlabel('Language', fontdict={'size': 16})
+    plt.ylabel('Count', fontdict={'size': 16})
+    plt.xticks(rotation=80, fontsize=12)
+    plt.subplots_adjust(bottom=0.28)
+    plt.savefig(os.path.join(app.config['IMAGE_FOLDER'], 'plot5.jpg'))
+    plt.close()
 
 @cache.memoize(timeout=84600)
 def creatorStatistics(creator_id):
@@ -77,7 +106,7 @@ def creatorStatistics(creator_id):
     return stats
 
 
-# @cache.memoize(timeout=84600)
+@cache.memoize(timeout=1)
 def adminStatistics():
     stats = {}
     song_count = Song.query.count()
@@ -103,11 +132,21 @@ def adminStatistics():
         'count'), ).join(Song, Song.genre == Genre.name, isouter=True).join(SongLikes, SongLikes.song_id == Song.id, isouter=True).group_by(Genre.name)
     res4 = db.session.execute(query).fetchall()
 
+    query = db.select(Language.name, func.sum(Song.views).label('views'), func.avg(SongLikes.rating).label('rating'), func.count(distinct(Song.id)).label(
+        'count'), ).join(Song, Song.language == Language.name, isouter=True).join(SongLikes, SongLikes.song_id == Song.id, isouter=True).group_by(Language.name)
+    res5 = db.session.execute(query).fetchall()
+
     dic = [{'Genre': r[0], 'Views': r[1], 'Rating': r[2], 'Count': r[3]}
            for r in res4]
     df = pd.DataFrame(dic)
     df.fillna(0, inplace=True)
     get_plot(df)
+
+    dic = [{'Language': r[0], 'Views': r[1], 'Rating': r[2], 'Count': r[3]}
+           for r in res5]
+    df = pd.DataFrame(dic)
+    df.fillna(0, inplace=True)
+    get_plot1(df)
 
     stats['song_count'] = song_count
     stats['album_count'] = album_count
@@ -139,6 +178,6 @@ class AnalyticsResource(Resource):
             albums = Album.query.filter(Album.creator_id == creator_id).order_by(
                 Album.created_at.desc()).all()
             return {"analytics": creatorStatistics(creator_id),
-                    "songs": song_schema.dump(songs),
-                    "alubms": album_schema.dump(albums)}
+                    "songs": many_song_schema.dump(songs),
+                    "albums": many_album_schema.dump(albums)}
         return {"message": "unauthorized"}, 403
