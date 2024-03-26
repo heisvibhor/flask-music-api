@@ -54,7 +54,8 @@ class CreatorLikes(db.Model):
         "song.id"), primary_key=True, nullable=False)
     creator_id: Mapped[int] = mapped_column(
         db.ForeignKey("creator.id"), nullable=False)
-    like_date: Mapped[date] = mapped_column(server_default=db.sql.func.now(), primary_key=True)
+    like_date: Mapped[date] = mapped_column(
+        server_default=db.sql.func.now(), primary_key=True)
     likes: Mapped[int] = mapped_column(default=0)
     views: Mapped[int] = mapped_column(default=0)
     unlikes: Mapped[int] = mapped_column(default=0)
@@ -79,9 +80,9 @@ class Song(db.Model):
     language: Mapped[str] = mapped_column(
         db.ForeignKey("language.name"), nullable=False)
     albums: Mapped[list["Album"]] = relationship(secondary='album_song', back_populates='songs',
-                                                 primaryjoin="Album.id == AlbumSong.album_id")
+                                                 primaryjoin="Album.id == AlbumSong.album_id", cascade="save-update", viewonly=True)
     likes: Mapped[list["SongLikes"]] = relationship(
-        back_populates='song', cascade="save-update")
+        back_populates='song', cascade="delete")
     creator: Mapped["Creator"] = relationship(
         back_populates='songs', cascade="save-update")
 
@@ -96,7 +97,9 @@ class Playlist(db.Model):
         server_default=db.sql.func.now())
     image: Mapped[str] = mapped_column(nullable=True)
     songs: Mapped[list["Song"]] = relationship(secondary='song_playlist',
-                                               primaryjoin="Playlist.id == SongPlaylist.playlist_id")
+                                               primaryjoin="Playlist.id == SongPlaylist.playlist_id",
+                                               viewonly=True,
+                                               cascade="delete")
 
     user: Mapped["User"] = relationship(
         back_populates='playlists', cascade="save-update")
@@ -112,7 +115,9 @@ class Album(db.Model):
         server_default=db.sql.func.now())
     image: Mapped[str] = mapped_column(nullable=True)
     songs: Mapped[list["Song"]] = relationship(secondary='album_song', back_populates='albums',
-                                               primaryjoin="Album.id == AlbumSong.album_id")
+                                               primaryjoin="Album.id == AlbumSong.album_id",
+                                               viewonly=True,
+                                               cascade="delete")
 
     creator: Mapped["Creator"] = relationship(
         back_populates='albums', cascade="save-update")
@@ -213,7 +218,7 @@ class PlaylistSchema(ma.SQLAlchemySchema):
     user_id = ma.auto_field()
     created_at = ma.auto_field()
     image = ma.auto_field()
-    songs = fields.Nested(SongSchema(many = True))
+    songs = fields.Nested(SongSchema(many=True))
     user = fields.Nested(UserSchema(only=("id", "image")))
 
 
@@ -226,7 +231,7 @@ class AlbumSchema(ma.SQLAlchemySchema):
     creator_id = ma.auto_field()
     created_at = ma.auto_field()
     image = ma.auto_field()
-    songs = fields.Nested(SongSchema(many = True))
+    songs = fields.Nested(SongSchema(many=True))
     creator = fields.Nested(CreatorSchema(only=("id", "image", "artist")))
 
 

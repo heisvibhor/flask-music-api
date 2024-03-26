@@ -1,6 +1,6 @@
 from flask_restful import Resource, request
 from application.models import Song, Album, AlbumSong, Creator
-from application.models import album_schema, song_schema
+from application.models import album_schema, many_album_schema, song_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_jwt
 import os
 from application.delete_file import delete_file
@@ -37,7 +37,7 @@ class AlbumSongResource(Resource):
            
 def delete_album(album_id):
     get_album = Album.query.get_or_404(album_id)
-    
+    albumSongs = AlbumSong.query.filter(AlbumSong.album_id == album_id).delete()
     get_album.songs = []
     if get_album.image:
         delete_file(os.path.join(app.config['IMAGE_FOLDER'] , get_album.image))
@@ -116,9 +116,12 @@ class AlbumResource(Resource):
     
     @jwt_required()
     def delete(self, album_id):
+        if get_jwt()['user_type'] == 'ADMIN':
+            album = Album.query.get_or_404(album_id)
+            delete_album(album_id)
+            return {"message": "Success"}
         album = Album.query.get_or_404(album_id)
-        # print(album_schema.dump(album),get_jwt_identity())
-        if get_jwt_identity()!= album.creator_id and get_jwt()['user_type'] != 'ADMIN':
+        if get_jwt_identity()!= album.creator_id:
             return {"message": "wrong user"}, 403
         creator = Creator.query.get_or_404(current_user.id)
         if not creator or creator.disabled:
@@ -130,17 +133,15 @@ class AlbumResource(Resource):
     def get(self):
         if request.args.get('album_id'):
             album = Album.query.get_or_404(int(request.args.get('album_id')))
-            if get_jwt_identity()!= album.creator_id :
-                return {"message": "invalid user"}, 403
             return {"album": album_schema.dump(album)}
         
-        query = Album.query.filter(Album.creator_id == get_jwt_identity())
-        if request.args.get('title'):
+        query = Album.query
+        if request.args.get('title') and request.args.get('title') not in ['', 'null', 'undefined', None]:
             query = query.filter(Album.title.ilike(f'%{request.args.get("title")}%'))
-        if request.args.get('creator_id'):
+        if request.args.get('creator_id') and request.args.get('creator_id') not in ['', 'null', 'undefined', None]:
             query = query.filter(Album.creator_id == request.args.get('creator_id'))
 
         res = query.all()
         if not res:
             return {"message": "not found"}, 404
-        return {"album": album_schema.dump(res)}
+        return {"albums": many_album_schema.dump(res)}

@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from application.models import Song, Playlist, SongLikes,  Album
-from application.models import playlist_schema, song_schema, CreatorLikes, album_schema
+from application.models import many_playlist_schema, song_schema, CreatorLikes, many_album_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_jwt
 from sqlalchemy import func, case
 from instances import db
@@ -27,8 +27,8 @@ class HomePageResource(Resource):
         data['recently_added'] = [{'song': song_schema.dump(r[0]), 'rating':r[1], 'likes': r[2]} for r  in db.session.execute(query2).all()]
 
         query3 = Album.query.order_by(Album.created_at.desc()).limit(10)
-        data['albums'] = album_schema.dump(query3.all())
+        data['albums'] = many_album_schema.dump(query3.all())
 
         query4 = Playlist.query.order_by(Playlist.created_at.desc()).filter(Playlist.user_id == current_user.id)
-        data['playlists'] = playlist_schema.dump(query4.all())
+        data['playlists'] = many_playlist_schema.dump(query4.all())
         return data

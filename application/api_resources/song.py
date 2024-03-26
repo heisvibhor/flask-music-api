@@ -13,8 +13,8 @@ from .analytics import creatorStatistics
 def delete_song(song_id):
     get_song = Song.query.get_or_404(song_id)
 
-    get_song.playlists = []
-    get_song.likes = []
+    # get_song.albums = []
+    # get_song.likes = []
 
     if get_song.image:
         delete_file(os.path.join(app.config['IMAGE_FOLDER'], get_song.image))
@@ -138,15 +138,18 @@ class SongResource(Resource):
 
     @jwt_required()
     def delete(self, song_id):
+        if get_jwt()['user_type'] == 'ADMIN':
+            song = Song.query.get_or_404(song_id)
+            delete_song(song_id)
+            return {"message": 'Deleted succesfully'}, 200
+        
         song = Song.query.get_or_404(song_id)
-        if get_jwt()['user_type'] != 'ADMIN' and not (get_jwt()['user_type'] == 'CREATOR' and get_jwt_identity() == song.creator_id):
+        if not (get_jwt()['user_type'] == 'CREATOR' and get_jwt_identity() == song.creator_id):
             return {"message": "wrong user"}, 403
         creator = Creator.query.get_or_404(current_user.id)
         if not creator or creator.disabled:
             return {"message": "creator disabled"}, 403
-
         delete_song(song_id)
-
         return {"message": 'Deleted succesfully'}, 200
 
     @jwt_required()
