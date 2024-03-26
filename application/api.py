@@ -25,4 +25,3 @@ api.add_resource(CreatorResource, '/api/creator')
 api.add_resource(UserResource, '/api/user')
 api.add_resource(LanguageResource, '/api/language')
 api.add_resource(GenreResource, '/api/genre')
-

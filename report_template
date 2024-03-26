@@ -1,0 +1,57 @@
+<html>
+    <body>
+        <h4>
+            {{ artist_name }}
+        </h4>
+        <table>
+            <tr>
+                <td>
+                    Songs Created
+                </td>
+                <td>
+                    {{ analytics['song_count'] }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Albums Created
+                </td>
+                <td>
+                    {{ analytics['album_count'] }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Likes
+                </td>
+                <td>
+                    {{ analytics['likes'] }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Songs Created
+                </td>
+                <td>
+                    {{ analytics['views'] }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Ratings Received
+                </td>
+                <td>
+                    {{ analytics['rating_count'] }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Average Rating
+                </td>
+                <td>
+                    {{ analytics['rating'] }}
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

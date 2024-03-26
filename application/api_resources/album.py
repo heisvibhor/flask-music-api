@@ -7,6 +7,7 @@ from application.delete_file import delete_file
 from instances import app, db, cache
 import uuid
 from .analytics import creatorStatistics
+from application.contollers import user
 class AlbumSongResource(Resource):
     @jwt_required()
     def post(self, album_id, song_id):
@@ -130,6 +131,7 @@ class AlbumResource(Resource):
         return {"message": "Success"}
 
     @jwt_required()
+    @user
     def get(self):
         if request.args.get('album_id'):
             album = Album.query.get_or_404(int(request.args.get('album_id')))

@@ -1,3 +1,4 @@
+from celery.schedules import crontab
 config_object = {
     "DEBUG": True,         
     "CACHE_TYPE": "RedisCache", 
@@ -12,5 +13,15 @@ config_object = {
         "broker_url":"redis://localhost",
         "result_backend":"redis://localhost",
         "task_ignore_result":True,
+         "beat_schedule": {
+                "task-every-10-seconds": {
+                    "task": "application.tasks.askLogin",
+                    "schedule": crontab(minute=20, hour=20),
+                },
+                "task-every-10-10-seconds": {
+                    "task": "application.tasks.send_monthly_report",
+                    "schedule": 60,
+                }
+            },
     }
 }
