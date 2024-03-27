@@ -8,6 +8,7 @@ from instances import app, db, cache
 from sqlalchemy import func, case
 import uuid
 from .analytics import creatorStatistics
+from application.contollers import user
 
 
 def delete_song(song_id):
@@ -27,6 +28,7 @@ def delete_song(song_id):
 
 class SongResource(Resource):
     @jwt_required()
+    @user
     def get(self):
         # claims = get_jwt()
         # print(current_user.user_type, claims, request.args, get_jwt_identity())

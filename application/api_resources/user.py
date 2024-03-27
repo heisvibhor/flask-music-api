@@ -10,6 +10,7 @@ from instances import db, app
 from application.models import User, user_schema
 import os
 import uuid
+from application.contollers import user
 
 class UserResource(Resource):
     signup_parser = reqparse.RequestParser()
@@ -61,12 +62,14 @@ class UserResource(Resource):
                 'message': 'success'
             }, 200
 
-    @jwt_required()   
+    @jwt_required()
+    @user
     def get(self):
         user_id = get_jwt_identity()
         return {"user": user_schema.dump(User.query.get_or_404(user_id))}
     
-    @jwt_required()   
+    @jwt_required()
+    @user
     def put(self):
         user_id = get_jwt_identity()
         user = User.query.get_or_404(user_id)

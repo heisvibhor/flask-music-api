@@ -5,10 +5,11 @@ from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get
 from sqlalchemy import and_
 from instances import db, cache, app
 from datetime import date
-
+from application.contollers import user
 
 class SongLikeRateResource(Resource):
     @jwt_required()
+    @user
     def get(self, song_id):
         Song.query.get_or_404(song_id)
         songLike = SongLikes.query.filter(and_(SongLikes.song_id == song_id,
@@ -22,6 +23,7 @@ class SongLikeRateResource(Resource):
         return {"songlike": song_likes_schema.dump(songLike)}
 
     @jwt_required()
+    @user
     def put(self, song_id):
         song = Song.query.get_or_404(song_id)
         songLike = SongLikes.query.filter(and_(SongLikes.song_id == song_id,
@@ -65,6 +67,7 @@ class SongLikeRateResource(Resource):
         return {"songlike": song_likes_schema.dump(songLike)}
 
     @jwt_required()
+    @user
     def post(self, song_id):
         song = Song.query.get_or_404(song_id)
         songLike = SongLikes.query.filter(and_(SongLikes.song_id == song_id,
@@ -127,5 +130,6 @@ def add_view(song_id, user_id):
 
 @app.route("/api/view/<int:song_id>", methods=['GET'])
 @jwt_required()
+@user
 def add_views(song_id):
     return add_view(song_id, get_jwt_identity())

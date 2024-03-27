@@ -25,4 +25,4 @@ from application.tasks import *
 # celery -A main.celery_app worker
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port="5001", debug=True, threaded=False)
+    app.run(host='0.0.0.0', port="5001", debug=True)

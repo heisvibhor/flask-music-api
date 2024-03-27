@@ -8,6 +8,7 @@ from instances import db, app
 from application.models import many_creator_schema, Creator, creator_schema
 import os
 import uuid
+from application.contollers import user
 
 
 class CreatorResource(Resource):
@@ -42,6 +43,7 @@ class CreatorResource(Resource):
         return {"message": "success", "creator": creator_schema.dump(creator)}
 
     @jwt_required()
+    @user
     def get(self):
         user_type = get_jwt()['user_type']
     

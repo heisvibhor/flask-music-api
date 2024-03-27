@@ -19,7 +19,7 @@ jwt = JWTManager(app)
 db = SQLAlchemy()
 ma = Marshmallow(app)
 redisInstance = redis.Redis(
-    host=config['CACHE_REDIS_HOST'], port=config['CACHE_REDIS_PORT'])
+    host=config['CACHE_REDIS_HOST'], port=config['CACHE_REDIS_PORT'], decode_responses=True)
 
 
 def celery_init_app(app):

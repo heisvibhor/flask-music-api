@@ -4,8 +4,10 @@ from application.models import many_playlist_schema, song_schema, CreatorLikes, 
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_jwt
 from sqlalchemy import func, case
 from instances import db
+from application.contollers import user
 class HomePageResource(Resource):
     @jwt_required()
+    @user
     def get(self):
         base_query = db.select(Song, 
                                     (func.sum(CreatorLikes.rating * CreatorLikes.rating_count)/func.sum(CreatorLikes.rating_count)), 

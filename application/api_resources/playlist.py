@@ -6,10 +6,12 @@ from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get
 import os
 from instances import app, db
 import uuid
+from application.contollers import user
 from application.delete_file import delete_file
 
 class PlaylistSongResource(Resource):
     @jwt_required()
+    @user
     def post(self, playlist_id, song_id):
         playlist = Playlist.query.get_or_404(playlist_id)
         song = Song.query.get_or_404(song_id)
@@ -116,6 +118,7 @@ class PlaylistResource(Resource):
         return {"message": "Success"}
 
     @jwt_required()
+    @user
     def get(self, playlist_id):
         playlist = Playlist.query.get_or_404(playlist_id)
         if get_jwt_identity()!= playlist.user_id :

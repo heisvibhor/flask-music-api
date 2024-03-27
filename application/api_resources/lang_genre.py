@@ -2,7 +2,7 @@ from flask_restful import Resource, request
 from application.models import Genre, Language, many_language_schema, many_genre_schema
 from flask_jwt_extended import jwt_required, get_jwt
 from instances import db
-
+from application.contollers import user
 
 class GenreResource(Resource):
     def get(self):

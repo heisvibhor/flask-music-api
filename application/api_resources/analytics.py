@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.colors as mcolors
 import matplotlib
 import os
+from application.contollers import user
 matplotlib.use('Agg')
 
 
@@ -166,6 +167,7 @@ def adminStatistics():
 
 class AnalyticsResource(Resource):
     @jwt_required()
+    @user
     def get(self):
         user_type = get_jwt()['user_type']
         if user_type == 'ADMIN':

@@ -14,13 +14,13 @@ config_object = {
         "result_backend":"redis://localhost",
         "task_ignore_result":True,
          "beat_schedule": {
-                "task-every-10-seconds": {
-                    "task": "application.tasks.askLogin",
-                    "schedule": crontab(minute=20, hour=20),
+                "task-check_login": {
+                    "task": "application.tasks.check_login",
+                    "schedule": crontab(minute=5, hour=19),
                 },
-                "task-every-10-10-seconds": {
+                "task-send_monthly_report": {
                     "task": "application.tasks.send_monthly_report",
-                    "schedule": 60,
+                    "schedule": crontab(minute=5, hour=9, day_of_month='1'),
                 }
             },
     }

@@ -1,10 +1,22 @@
 <html>
+    <head>
+        <style>
+            table, td, tr{
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            td {
+                padding: 0 5px 0 5px;
+            }
+        </style>
+    </head>
     <body>
         <h4>
-            {{ artist_name }}
+            Hello {{ artist_name }}
         </h4>
+        <p>Hope you are doing well here is monthly report for {{ month_name }}, {{ year }}</p>
         <table>
-            <tr>
+            <tr style="border: 1px solid black">
                 <td>
                     Songs Created
                 </td>
@@ -30,7 +42,7 @@
             </tr>
             <tr>
                 <td>
-                    Songs Created
+                    Views Received
                 </td>
                 <td>
                     {{ analytics['views'] }}
