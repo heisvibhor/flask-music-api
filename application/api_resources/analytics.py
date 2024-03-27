@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from application.models import Song, Playlist, SongLikes, SongPlaylist, Album, AlbumSong, Genre
+from application.models import Song, Playlist, SongLikes, SongPlaylist, Album, AlbumSong, Genre, User, Creator
 from application.models import Language, many_song_schema, many_album_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from sqlalchemy import func, distinct
@@ -11,9 +11,10 @@ import matplotlib.colors as mcolors
 import matplotlib
 import os
 from application.contollers import user
+import datetime
 matplotlib.use('Agg')
 
-
+@cache.memoize(timeout=86400)
 def get_plot(df):
     df['Color'] = np.random.choice(list(mcolors.XKCD_COLORS), df.shape[0])
 
@@ -44,6 +45,7 @@ def get_plot(df):
     plt.savefig(os.path.join(app.config['IMAGE_FOLDER'], 'plot2.jpg'))
     plt.close()
 
+@cache.memoize(timeout=86400)
 def get_plot1(df):
     df['Color'] = np.random.choice(list(mcolors.XKCD_COLORS), df.shape[0])
 
@@ -74,7 +76,7 @@ def get_plot1(df):
     plt.savefig(os.path.join(app.config['IMAGE_FOLDER'], 'plot5.jpg'))
     plt.close()
 
-@cache.memoize(timeout=84600)
+@cache.memoize(timeout=600)
 def creatorStatistics(creator_id):
     stats = {}
     song_count = Song.query.where(Song.creator_id == creator_id).count()
@@ -107,13 +109,25 @@ def creatorStatistics(creator_id):
     return stats
 
 
-@cache.memoize(timeout=1)
+@cache.memoize(timeout=86400)
 def adminStatistics():
     stats = {}
     song_count = Song.query.count()
     album_count = Album.query.count()
     playlist_count = Playlist.query.count()
+    user_count = User.query.filter(User.user_type == 'USER').count()
+    creator_count = Creator.query.count()
 
+    last_month = datetime.date.today().replace(day=1) - datetime.timedelta(days=1)
+    month = last_month.strftime("%m")
+    year = last_month.strftime("%Y")
+    user_last_month = User.query.where(
+        func.extract('year', User.created_at) == year).where(
+        func.extract('month', User.created_at) == month).count()
+    creator_last_month = Creator.query.where(
+        func.extract('year', Creator.created_at) == year).where(
+        func.extract('month', Creator.created_at) == month).count()
+    
     query = db.select(func.sum(Song.views).label('views'), func.avg(SongLikes.rating).label(
         'rating')).join(SongLikes, SongLikes.song_id == Song.id, isouter=True)
     res = db.session.execute(query).first()
@@ -152,6 +166,10 @@ def adminStatistics():
     stats['song_count'] = song_count
     stats['album_count'] = album_count
     stats['playlist_count'] = playlist_count
+    stats['user_count'] = user_count
+    stats['user_last_month'] = user_last_month
+    stats['creator_count'] = creator_count
+    stats['creator_last_month'] = creator_last_month
     stats['total_views'] = res[0] if res else 0
     stats['total_likes'] = res1[0] if res1 else 0
     stats['average_rating'] = res[1] if res else 0
@@ -160,9 +178,6 @@ def adminStatistics():
     # No of playlist having some songs
 
     return stats
-
-
-
 
 
 class AnalyticsResource(Resource):

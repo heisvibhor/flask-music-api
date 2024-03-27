@@ -67,7 +67,7 @@ class SongResource(Resource):
             if 'creator_id' in request.args and request.args['creator_id'] not in empty:
                 songs_query = songs_query.where(
                     Song.creator_id == request.args.get('creator_id'))
-
+            # print(songs_query)
             res = db.session.execute(songs_query).fetchall()
             # print(res)
             if not res:

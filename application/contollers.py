@@ -3,7 +3,7 @@ from functools import wraps
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 import os
 from datetime import datetime
-from instances import redisInstance
+from instances import redisInstance, cache
 
 @app.route("/api/audio/<string:filename>")
 def return_audio(filename):

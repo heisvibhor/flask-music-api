@@ -52,9 +52,7 @@ def askLogin(email, name):
 @app.route('/send_monthly_report', methods=['get'])
 def send_monthly_report():
     creators = User.query.filter(User.user_type == "CREATOR").all()
-    today = datetime.date.today()
-    first = today.replace(day=1)
-    last_month = first - datetime.timedelta(days=1)
+    last_month = datetime.date.today().replace(day=1) - datetime.timedelta(days=1)
     month = last_month.strftime("%m")
     year = last_month.strftime("%Y")
     month_words = last_month.strftime("%B")

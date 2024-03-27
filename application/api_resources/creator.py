@@ -61,7 +61,7 @@ class CreatorResource(Resource):
             if res:
                 return {"creators": many_creator_schema.dump(res), "message": "success"}
             else:
-                return {"message": "No match found", "creator": None}
+                return {"message": "No match found", "creators": None}, 404
         return {"message": "unauthorized"}, 403
 
     @jwt_required()

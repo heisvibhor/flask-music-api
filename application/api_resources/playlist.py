@@ -4,7 +4,7 @@ from application.models import Song, Playlist, SongLikes, SongPlaylist, Creator,
 from application.models import playlist_schema, song_likes_schema, creator_schema, song_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_jwt
 import os
-from instances import app, db
+from instances import app, db, cache
 import uuid
 from application.contollers import user
 from application.delete_file import delete_file

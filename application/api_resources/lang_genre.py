@@ -1,10 +1,11 @@
 from flask_restful import Resource, request
 from application.models import Genre, Language, many_language_schema, many_genre_schema
 from flask_jwt_extended import jwt_required, get_jwt
-from instances import db
+from instances import db, cache
 from application.contollers import user
 
 class GenreResource(Resource):
+    @cache.cached(timeout=300)
     def get(self):
         genres = Genre.query.all()
         return {"genres": many_genre_schema.dump(genres)}
@@ -28,6 +29,7 @@ class GenreResource(Resource):
 
 
 class LanguageResource(Resource):
+    @cache.cached(timeout=300)
     def get(self):
         languages = Language.query.all()
         return {"languages": many_language_schema.dump(languages)}

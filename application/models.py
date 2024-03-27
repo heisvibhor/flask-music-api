@@ -8,6 +8,8 @@ from marshmallow import fields
 class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=db.sql.func.now())
     password: Mapped[str] = mapped_column(nullable=False)
     name: Mapped[str] = mapped_column(nullable=False)
     user_type: Mapped[str] = mapped_column(db.CheckConstraint('user_type in ("USER", "CREATOR", "ADMIN")'),

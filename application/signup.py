@@ -4,7 +4,6 @@ from instances import app, db, cache
 from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequest
-from werkzeug.datastructures import FileStorage
 from flask_restful import reqparse
 from email.message import EmailMessage
 from .mail import send_mail
@@ -56,7 +55,7 @@ def changepswd():
     return {"message": "change password success"}, 400
     
 
-@cache.memoize(300)
+@cache.memoize(600)
 def getOTP(email_id):
     return random.randint(100000, 999999)
 
