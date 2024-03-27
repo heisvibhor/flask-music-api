@@ -19,8 +19,11 @@ class AlbumSongResource(Resource):
             return {"message": "Invalid user or song"}, 406
 
         album.songs.append(song)
+        print(album.songs)
         db.session.add(album)
         db.session.commit()
+        print(Album.query.get_or_404(album_id).songs)
+        
 
         return {'song': song_schema.dump(song)}
     
@@ -135,6 +138,7 @@ class AlbumResource(Resource):
     def get(self):
         if request.args.get('album_id'):
             album = Album.query.get_or_404(int(request.args.get('album_id')))
+            print(album.songs)
             return {"album": album_schema.dump(album)}
         
         query = Album.query
@@ -144,6 +148,7 @@ class AlbumResource(Resource):
             query = query.filter(Album.creator_id == request.args.get('creator_id'))
 
         res = query.all()
+        print(res.songs, "Hello ji")
         if not res:
             return {"message": "not found"}, 404
         return {"albums": many_album_schema.dump(res)}

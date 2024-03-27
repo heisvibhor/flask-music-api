@@ -100,7 +100,6 @@ class Playlist(db.Model):
     image: Mapped[str] = mapped_column(nullable=True)
     songs: Mapped[list["Song"]] = relationship(secondary='song_playlist',
                                                primaryjoin="Playlist.id == SongPlaylist.playlist_id",
-                                               viewonly=True,
                                                cascade="delete")
 
     user: Mapped["User"] = relationship(
@@ -118,7 +117,6 @@ class Album(db.Model):
     image: Mapped[str] = mapped_column(nullable=True)
     songs: Mapped[list["Song"]] = relationship(secondary='album_song', back_populates='albums',
                                                primaryjoin="Album.id == AlbumSong.album_id",
-                                               viewonly=True,
                                                cascade="delete")
 
     creator: Mapped["Creator"] = relationship(
