@@ -190,8 +190,12 @@ class AnalyticsResource(Resource):
 
         if user_type == 'CREATOR':
             creator_id = get_jwt_identity()
+            creator = Creator.query.get_or_404(get_jwt_identity())
+            if not creator or creator.disabled:
+                return {"message": "creator disabled"}, 403
             songs = Song.query.filter(Song.creator_id == creator_id).order_by(
                 Song.created_at.desc()).all()
+            print(songs)
             albums = Album.query.filter(Album.creator_id == creator_id).order_by(
                 Album.created_at.desc()).all()
             return {"analytics": creatorStatistics(creator_id),

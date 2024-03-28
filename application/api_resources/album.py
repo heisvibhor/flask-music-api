@@ -34,14 +34,14 @@ class AlbumSongResource(Resource):
         if albumSong and album.creator_id == get_jwt_identity():
             db.session.delete(albumSong)
             db.session.commit()
-            return {"message": "Success"}, 202
+            return {"message": "Success"}, 200
         else:
             return {"message": "Invalid"}, 401
         
            
 def delete_album(album_id):
     get_album = Album.query.get_or_404(album_id)
-    albumSongs = AlbumSong.query.filter(AlbumSong.album_id == album_id).delete()
+    AlbumSong.query.filter(AlbumSong.album_id == album_id).delete()
     get_album.songs = []
     if get_album.image:
         delete_file(os.path.join(app.config['IMAGE_FOLDER'] , get_album.image))
@@ -138,7 +138,6 @@ class AlbumResource(Resource):
     def get(self):
         if request.args.get('album_id'):
             album = Album.query.get_or_404(int(request.args.get('album_id')))
-            print(album.songs)
             return {"album": album_schema.dump(album)}
         
         query = Album.query
@@ -148,7 +147,6 @@ class AlbumResource(Resource):
             query = query.filter(Album.creator_id == request.args.get('creator_id'))
 
         res = query.all()
-        print(res.songs, "Hello ji")
         if not res:
             return {"message": "not found"}, 404
         return {"albums": many_album_schema.dump(res)}

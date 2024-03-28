@@ -82,7 +82,7 @@ class CreatorResource(Resource):
         if get_jwt()['user_type'] == 'CREATOR':
             creator = Creator.query.get_or_404(get_jwt_identity())
 
-            if not creator and creator.disabled:
+            if not creator or creator.disabled:
                 return {"message": "creator disabled"}, 403
 
             image = request.files.get('image')

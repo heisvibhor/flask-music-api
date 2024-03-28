@@ -13,10 +13,6 @@ from application.contollers import user
 
 def delete_song(song_id):
     get_song = Song.query.get_or_404(song_id)
-
-    # get_song.albums = []
-    # get_song.likes = []
-
     if get_song.image:
         delete_file(os.path.join(app.config['IMAGE_FOLDER'], get_song.image))
     if get_song.audio:
@@ -52,7 +48,8 @@ class SongResource(Resource):
                                      func.sum(CreatorLikes.rating_count)),
                                     func.sum(CreatorLikes.likes).label('likes')
                                     ).join(CreatorLikes, CreatorLikes.song_id == Song.id, isouter=True
-                                           ).group_by(Song.id)
+                                           ).group_by(Song.id).order_by(
+                                    Song.created_at.desc())
             # print(request.args)
             empty = ['', None, 'undefined', 'null']
             if 'title' in request.args and request.args['title'] not in empty:

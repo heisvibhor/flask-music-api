@@ -81,9 +81,9 @@ def report(creator_id, email, month, year, month_words):
         func.sum(CreatorLikes.rating_count),
         func.sum(CreatorLikes.rating * CreatorLikes.rating_count),
     ).where(
-        Album.creator_id == creator_id).where(
-        func.extract('year', Album.created_at) == year).where(
-        func.extract('month', Album.created_at) == month).where(
+        CreatorLikes.creator_id == creator_id).where(
+        func.extract('year', CreatorLikes.like_date) == year).where(
+        func.extract('month', CreatorLikes.like_date) == month).where(
         CreatorLikes.creator_id == creator_id)
     res = db.session.execute(query).first()
     analytics['likes'] = res[0] if res else 0
