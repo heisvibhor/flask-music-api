@@ -20,7 +20,7 @@ config_object = {
                 },
                 "task-send_monthly_report": {
                     "task": "application.tasks.send_monthly_report",
-                    "schedule": crontab(minute=57, hour=8, day_of_month='28'),
+                    "schedule": crontab(minute=5, hour=9, day_of_month='1'),
                 }
             },
     }
