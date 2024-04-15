@@ -10,7 +10,7 @@ class HomePageResource(Resource):
     @user
     def get(self):
         return self.getter(current_user.language, current_user.id)
-    @cache.cached(timeout=300)
+    @cache.memoize(timeout=300)
     def getter(self, language, id):
         base_query = db.select(Song, 
                                     (func.sum(CreatorLikes.rating * CreatorLikes.rating_count)/func.sum(CreatorLikes.rating_count)), 

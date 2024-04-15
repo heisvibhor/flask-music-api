@@ -14,7 +14,7 @@ from application.contollers import user
 import datetime
 matplotlib.use('Agg')
 
-@cache.memoize(timeout=86400)
+@cache.cached(timeout=86400)
 def get_plot(df):
     df['Color'] = np.random.choice(list(mcolors.XKCD_COLORS), df.shape[0])
 
@@ -45,7 +45,7 @@ def get_plot(df):
     plt.savefig(os.path.join(app.config['IMAGE_FOLDER'], 'plot2.jpg'))
     plt.close()
 
-@cache.memoize(timeout=86400)
+@cache.cached(timeout=86400)
 def get_plot1(df):
     df['Color'] = np.random.choice(list(mcolors.XKCD_COLORS), df.shape[0])
 
